@@ -65,6 +65,10 @@ function EdgeTable(polygon) {
     }
 }
 
+function deleteSetFromEdgeTable(et, set) {
+    et.entries = et.entries.filter(entry => !set.includes(entry))
+}
+
 ////////////////////////////
 //// active edge table  ////
 ////////////////////////////
@@ -84,6 +88,11 @@ function compareActiveEdgeTableEntries(a, b) {
 function ActiveEdgeTable() {
     this.entries = new Array();
     this.nEntries = 0;
+}
+
+function addToActiveEdgeTable(aet, edge) {
+    aet.entries.push(edge)
+    aet.nEntries++
 }
 
 
@@ -106,7 +115,9 @@ function scanline(image, polygon) {
         // [optimization]
         // if the active edge table is empty (nEntries==0) we can step to the next edge, i.e. we can set y_scanline = myEdgeTableEntry.y_lower
         // note that the edge table is sorted by y_lower!
-
+        if (activeEdgeTable.nEntries === 0 && edgeTable.entries[0]) {
+            y_scanline = edgeTable.entries[0].y_lower
+        }
 
 
         // [mandatory]
@@ -114,31 +125,51 @@ function scanline(image, polygon) {
         // - build a new active edge table
         // - copy all those edges from the previous active edge table which should still be in the active edge table for this scanline
         // - assign the new active edge table to activeEdgeTable
-
+        let newActiveEdgeTable = new ActiveEdgeTable();
+        activeEdgeTable.entries.forEach(entry => {
+            if (y_scanline < entry.y_upper) {
+                addToActiveEdgeTable(newActiveEdgeTable, entry)
+            }
+        })
+        activeEdgeTable = newActiveEdgeTable
 
 
         // [mandatory]
         // add new edges from the edge table to the active edge table
-
+        let entriesToDelete = new Array()
+        edgeTable.entries.forEach(entry => {
+            if (y_scanline === entry.y_lower) {
+                addToActiveEdgeTable(activeEdgeTable, new ActiveEdgeTableEntry(entry))
+                entriesToDelete.push(entry)
+            }
+        })
+        deleteSetFromEdgeTable(edgeTable, entriesToDelete)
 
 
         // [mandatory]
         // sort the active edge table along x (use the array sort function with compareActiveEdgeTableEntries as compare function)
-
+        activeEdgeTable.entries.sort(compareActiveEdgeTableEntries)
 
 
         // [mandatory]
         // rasterize the line:
         // for every two successive active edge entries set the pixels in between the x intersections (the first and the second entry build a line segment, the third and the fourth build a line segment and so on)
         // note that setPixel() requires integer pixel coordinates!
-
+        for (let i = 0; i < activeEdgeTable.entries.length - 1; i = i + 2) {
+            for (let x = Math.floor(activeEdgeTable.entries[i].x_intersect); 
+                x < Math.floor(activeEdgeTable.entries[i + 1].x_intersect);
+                x++)
+            {
+                setPixel(image, new Point(x, y_scanline), polygon.color)
+            }
+        }
 
 
         // [mandatory]
         // update the x_intersect of the active edge table entries
-
-
-
+        activeEdgeTable.entries.forEach(entry => {
+            entry.x_intersect += entry.invSlope
+        })
     }
 }
 
