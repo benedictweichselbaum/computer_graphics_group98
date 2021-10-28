@@ -37,23 +37,33 @@ function floodFill4(image, pixel, fillColor) {
     //                  for both the area and the border.
 
     // get the color at pixel location, use getPixel()
-
-
+    let pickedPixelColor = getPixel(image, pixel)
 
     // base case 
     //       - color channels of the current color are equal to the color channels of the fillColor
     //       - pixel position is out of range
 
+    const equalColorOrUndefined = function(color1, color2) {
+            return !color1 || !color2 || (color1.r === color2.r &&
+                   color1.g === color2.g &&
+                   color1.b === color2.b)
+    }
 
+    const outOfRange = function(pixelToCheck) {
+        return pixelToCheck.x < 0 || pixelToCheck.x > 199 || pixelToCheck.y < 0 || pixelToCheck.y > 199
+    }
 
-    // set pixel color
-
-
-
-    // start recursion (4 neighboring pixels)
-
-
-
+    if (equalColorOrUndefined(pickedPixelColor, fillColor) || outOfRange(pixel)) {
+        return;
+    } else {
+        // set pixel color
+        setPixel(image, pixel, fillColor)
+        // start recursion (4 neighboring pixels)
+        floodFill4(image, new Point(pixel.x, pixel.y + 1), fillColor)
+        floodFill4(image, new Point(pixel.x + 1, pixel.y), fillColor)
+        floodFill4(image, new Point(pixel.x, pixel.y - 1), fillColor)
+        floodFill4(image, new Point(pixel.x - 1, pixel.y), fillColor)
+    } 
 }
 
 //////////////////////////
@@ -74,13 +84,12 @@ function RenderCanvas2() {
         }
         inc++;
     }
-
+    
     // flood fill
     floodFill4(canvas, seedPoint, new Color(255, 0, 0));
 
-
     // show image
-    context.putImageData(canvas, 0, 0);
+    context.putImageData(canvas, 0, 0);   
 }
 
 function setupFloodFill(canvas) {

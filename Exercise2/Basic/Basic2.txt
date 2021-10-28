@@ -1,0 +1,5 @@
+Pros:
+    - Easy implementation
+
+Cons:
+    - Recursion is slow
