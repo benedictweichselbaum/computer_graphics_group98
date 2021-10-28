@@ -70,25 +70,65 @@ function bresenham(image, line) {
 
     // compute deltas and update directions
 
+    let deltaX = x1 - x0
+    let deltaY = y1 - y0
 
+    let xStep = sgn(deltaX)
+    let yStep = sgn(deltaY)
+    
+    deltaX = deltaX < 0 ? -deltaX : deltaX
+    deltaY = deltaY < 0 ? -deltaY : deltaY
+
+    let hsx, hsy, dsx, dsy
+    let deltaInShortDirection, deltaInLongDirection
+
+    if (deltaX > deltaY) {
+        hsx = xStep
+        hsy = 0
+        dsx = xStep
+        dsy = yStep
+        deltaInShortDirection = deltaY
+        deltaInLongDirection = deltaX
+    } else {
+        hsx = 0
+        hsy = yStep
+        dsx = xStep
+        dsy = yStep
+        deltaInShortDirection = deltaX
+        deltaInLongDirection = deltaY
+    }
 
     // set initial coordinates
+    let xImage = x0
+    let yImage = y0
 
+    let D = deltaInLongDirection - (2 * deltaInShortDirection)
+    let deltaHorizontalMove = -2 * deltaInShortDirection
+    let deltaDiagonalMove = 2 * (deltaInLongDirection - deltaInShortDirection)
 
 
     // start loop to set nPixels 
-    let nPixels = 0; // think about how many pixels need to be set - zero is not correct ;)
+    let nPixels = deltaInLongDirection; // think about how many pixels need to be set - zero is not correct ;)
+
     for (let i = 0; i < nPixels; ++i) {
         // set pixel using the helper function setPixelS()
-
-
+        setPixelS(image, new Point(xImage, yImage), line.color, pixelScale)
         // update error
-
-
         // update coordinates depending on the error
-
-
+        if (D < 0) {
+            yImage += dsy
+            xImage += dsx
+            D = D + deltaDiagonalMove
+        } else {
+            yImage += hsy
+            xImage += hsx
+            D = D + deltaHorizontalMove
+        }
     }
+}
+
+function sgn(x) {
+    return x < 0 ? -1 : (x > 0 ? 1 : 0)
 }
 
 
