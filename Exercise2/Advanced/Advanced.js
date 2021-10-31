@@ -104,6 +104,18 @@ function scanline(image, polygon) {
 
     let edgeTable = new EdgeTable(polygon);
     let activeEdgeTable = new ActiveEdgeTable();
+
+    // delete horizontal lines
+    let entriesToDelete = new Array()
+    edgeTable.entries.forEach(entry => {
+        console.log(entry)
+        if (entry.invSlope === Infinity || entry.invSlope === -Infinity) {
+            entriesToDelete.push(entry)
+        }
+    })
+    deleteSetFromEdgeTable(edgeTable, entriesToDelete)
+    
+
     
     // TODO 2.3     Perform the scanline algorithm 
     //              by following the single comments.
@@ -163,7 +175,6 @@ function scanline(image, polygon) {
                 setPixel(image, new Point(x, y_scanline), polygon.color)
             }
         }
-
 
         // [mandatory]
         // update the x_intersect of the active edge table entries
