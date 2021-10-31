@@ -1,5 +1,7 @@
 Pros:
-    - Easy implementation
+    - Fast and easy implementation.
+    - Because the implementation is straightforward testing ist easy, too.
 
 Cons:
-    - Recursion is slow
+    - Recursion is slow because a lot of subroutines are called (Huge call stack).
+    - Often pixels get checked multiple times because neighboring pixels trigger up to four recursive calls for a certain pixel. But only one call is necessary to know if a pixel should be colored or not.
