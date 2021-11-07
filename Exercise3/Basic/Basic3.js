@@ -56,7 +56,8 @@ function webGLStart(canvas) {
 
     // TODO 3.3)	Define a constant variable (uniform) to 
     //              "send" the canvas size to all fragments.
-
+    let uniformVar = gl.getUniformLocation(shaderProgram, "canvasSize");
+    gl.uniform2f(uniformVar, canvas.width, canvas.height)
 
 
 

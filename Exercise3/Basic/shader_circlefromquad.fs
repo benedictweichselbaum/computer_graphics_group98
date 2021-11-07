@@ -2,6 +2,7 @@ precision mediump float;
 
 // TODO 3.3)	Define a constant variable (uniform) to 
 //              "send" the canvas size to all fragments.
+uniform vec2 canvasSize;
 
 void main(void)
 { 
@@ -14,4 +15,13 @@ void main(void)
 	//				[r-smoothMargin, r] by computing an appropriate alpha value.
 
 	gl_FragColor = vec4(1.0, 85.0 / 255.0, 0.0, 1.0);
+
+	vec2 fragCoord = vec2(2.0 * (gl_FragCoord.x / canvasSize.x) - 1.0, 2.0 * (gl_FragCoord.y / canvasSize.y) - 1.0);
+	float distanceFromCenter = sqrt(((fragCoord.x) * (fragCoord.x)) + ((fragCoord.y) * (fragCoord.y)));
+	float t = ((1.0 / smoothMargin) * r);
+	if (distanceFromCenter > r) {
+		discard;
+	} else if (distanceFromCenter >= (r - smoothMargin)) {
+		gl_FragColor.a = -(1.0 /smoothMargin) * distanceFromCenter + t;
+	}
 }
