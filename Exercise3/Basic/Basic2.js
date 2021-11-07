@@ -15,9 +15,9 @@ function webGLStart(canvas) {
     //              be as follows:
     //              [p0x,p0y,c0x,c0y,c0z,p1x...
 
-    let vertices = [-.5, -.5,
-                     .5, -.5,
-                     0, .5];
+    let vertices = [-.5, -.5, 1, 0, 0,
+                     .5, -.5, 0, 1, 0,
+                     0, .5, 0, 0, 1];
 
     let indices = [0, 1, 2];
 
@@ -56,9 +56,11 @@ function webGLStart(canvas) {
 
     let attrVertexPosition = gl.getAttribLocation(shaderProgram, "vVertex");
     gl.enableVertexAttribArray(attrVertexPosition);
-    gl.vertexAttribPointer(attrVertexPosition, 2, gl.FLOAT, false, 8, 0);
+    gl.vertexAttribPointer(attrVertexPosition, 2, gl.FLOAT, false, 20, 0);
 
-    let attrVertexColor;
+    let attrVertexColor = gl.getAttribLocation(shaderProgram, "color");
+    gl.enableVertexAttribArray(attrVertexColor);
+    gl.vertexAttribPointer(attrVertexColor, 3, gl.FLOAT, false, 20, 8);
 
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 }
