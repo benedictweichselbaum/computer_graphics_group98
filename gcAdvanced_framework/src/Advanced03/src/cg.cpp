@@ -86,7 +86,18 @@ void CG::update(float dt)
     //				mat4 glm::rotate(float angle, vec3 axis);
 
     // a) Sun
-    sun = mat4(1); // <- Change this line
+    mat4 scaleSun = scale(vec3(sunRadius, sunRadius, sunRadius));
+
+    // !!! Overflow possible
+    float goneBySunDays = time / sunRotationTime;   
+    float sunRotationAngle = 360 * goneBySunDays;
+    mat4 rotation = rotate(radians(sunRotationAngle), vec3(0, 23.4/90, 66.6/90));
+
+    mat4 tiltSun = rotate(sunObliquity, vec3(1, 0, 0));
+
+    sun = scaleSun; // <- Change this line
+    sun *= tiltSun;
+    sun *= rotation;
 
     // b) Earth
     earth = glm::translate(vec3(earthOrbitRadius,0,0)); // <- Change this line
