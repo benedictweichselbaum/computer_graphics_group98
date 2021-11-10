@@ -121,15 +121,26 @@ void CG::update(float dt)
     // c) Moon
     float goneByMoonYears = time / moonRevolutionTime;
     float relativeMoonPositionAngle = radians(360.0) * goneByMoonYears;
-    float translateXMoonAbsolut = (sin(relativeMoonPositionAngle) * moonOrbitRadius);
-    float translateXMoon = translateX + translateXMoonAbsolut;
-    float translateYMoon = translateY + (cos(relativeMoonPositionAngle) * moonOrbitRadius);
+    vec3 moonPosLocal;
+    moonPosLocal.x = -(sin(relativeMoonPositionAngle) * moonOrbitRadius);
+    moonPosLocal.y = (cos(relativeMoonPositionAngle) * moonOrbitRadius);
+    moonPosLocal.z = 0;
+    
+    moonPosLocal = rotate(moonPosLocal, moonOrbitalInclination, glm::vec3(0, -1, 0));
+    mat4 moonOrbitTranslate = translate(orbitTranslate, moonPosLocal);
 
-    float maxZTranslationMoon = sin(moonOrbitalInclination) * moonRadius;
-    float mOrbit = (2 * maxZTranslationMoon)/(2 * moonRadius);
-    float zTranslationMoon = mOrbit * translateXMoonAbsolut;
+    //float translateXMoonAbsolut = (sin(relativeMoonPositionAngle) * moonOrbitRadius);
+    //float translateXMoon = translateX + translateXMoonAbsolut;
+    //float translateYMoon = translateY + (cos(relativeMoonPositionAngle) * moonOrbitRadius);
 
-    mat4 moonOrbitTranslate = translate(vec3(translateXMoon, translateYMoon, zTranslationMoon));
+    //float maxZTranslationMoon = 0;//moonRadius;
+    //float mOrbit = (2 * maxZTranslationMoon)/(2 * moonRadius);
+    //float zTranslationMoon = mOrbit * translateXMoonAbsolut;
+
+
+    //mat4 moonOrbitTranslate = translate(glm::rotate(vec3(translateXMoon, translateYMoon, zTranslationMoon), moonOrbitalInclination, glm::vec3(0, -1, 0)));
+    //moonOrbitTranslate = glm::rotate(moonOrbitTranslate, moonOrbitalInclination, glm::vec3(0, 1, 0));
+
 
     mat4 tiltMoon = rotate(moonObliquity, vec3(0, 1, 0));
 
@@ -138,7 +149,7 @@ void CG::update(float dt)
     mat4 rotationMoon = rotate(dayMoonRotationAngle, vec3(0, 0, 1));
 
 
-    moon =  moonOrbitTranslate;
+    moon = moonOrbitTranslate;
     moon *= tiltMoon;
     moon *= rotationMoon;
     moon *= scale(vec3(moonRadius, moonRadius, moonRadius)); // <- Change this line
