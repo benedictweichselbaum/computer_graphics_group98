@@ -9,7 +9,7 @@ function webGLStart(canvas) {
 
     let c = [0.3, 0.2];
     let r = 0.7;
-    let slices = 1000;
+    let slices = 10;
     
     let vertices = [];
     let indices = [];
@@ -22,19 +22,31 @@ function webGLStart(canvas) {
     //              triangles is stored in the variable slices.
 
     // Push center of circle
-    vertices.push(c[0])
-    vertices.push(c[1])
+	vertices.push(c[0]);
+	vertices.push(c[1]);
 
-    for (let p = 0; p <= 2 * Math.PI; p += (2 * Math.PI / slices)) {
-        vertices.push(c[0] + (Math.cos(p) * r))
-        vertices.push(c[1] + (Math.sin(p) * r))
+    //Parametrize circle-line (2-sphere)
+    let t = 0;
+	const d_t = 2*Math.PI / slices;
+
+    for (let i = 0; i < slices; i++) {
+        let x = c[0] + r*Math.cos(t);
+        let y = c[1] + r*Math.sin(t);
+        vertices.push(x);
+        vertices.push(y);
+        console.log(t, x, y);
+        t += d_t;
     }
 
-    for (let i = 2; i < vertices.length / 2; i++) {
-        indices.push(i)
-        indices.push(i - 1)
-        indices.push(0)
+    for (let i = 0; i < slices - 1; i++) {
+        indices.push(0);
+		indices.push(i+1);
+		indices.push(i+2);
     }
+
+    indices.push(0);
+    indices.push(slices);
+    indices.push(1);
 
     let vbo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
