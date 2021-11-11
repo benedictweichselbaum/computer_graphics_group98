@@ -86,17 +86,80 @@ void CG::update(float dt)
     //				mat4 glm::rotate(float angle, vec3 axis);
 
     // a) Sun
-    sun = mat4(1); // <- Change this line
+    mat4 scaleSun = scale(vec3(sunRadius, sunRadius, sunRadius));
+
+    // !!! Overflow possible
+    float goneBySunDays = time / sunRotationTime;   
+    float sunRotationAngle = radians(360.0) * goneBySunDays;
+    mat4 rotation = rotate(sunRotationAngle, vec3(0.0, 0.0, 1.0));
+
+    mat4 tiltSun = rotate(sunObliquity, vec3(0, 1, 0));
+
+    sun = scaleSun; // <- Change this line
+    sun *= tiltSun;
+    sun *= rotation;
+
 
     // b) Earth
-    earth = glm::translate(vec3(earthOrbitRadius,0,0)); // <- Change this line
+    float goneByEarthYears = time / earthRevolutionTime;
+    float yearEarthPositionAngle = radians(360.0) * goneByEarthYears;
+    float translateX = cos(yearEarthPositionAngle) * earthOrbitRadius;
+    float translateY = sin(yearEarthPositionAngle) * earthOrbitRadius;
+    mat4 orbitTranslate = translate(vec3(translateX, translateY, 0.0));
+
+    float goneByEarthDays = time / earthRotationTime;
+    float dayEarthRotationAngle = radians(360.0) * goneByEarthDays;
+    mat4 rotationEarth = rotate(dayEarthRotationAngle, vec3(0, 0, 1));
+
+    mat4 tiltEarth = rotate(earthObliquity, vec3(0, 1, 0));
+
+    earth = orbitTranslate;
+    earth *= scale(vec3(earthRadius, earthRadius, earthRadius)); // <- Change this line
+    earth *= tiltEarth;
+    earth *= rotationEarth;
 
     // c) Moon
-    moon =  glm::translate(vec3(earthOrbitRadius + moonOrbitRadius,0,0)); // <- Change this line
+    float goneByMoonYears = time / moonRevolutionTime;
+    float relativeMoonPositionAngle = radians(360.0) * goneByMoonYears;
+    vec3 moonPosLocal;
+    moonPosLocal.x = -(sin(relativeMoonPositionAngle) * moonOrbitRadius);
+    moonPosLocal.y = (cos(relativeMoonPositionAngle) * moonOrbitRadius);
+    moonPosLocal.z = 0;
+    
+    moonPosLocal = rotate(moonPosLocal, moonOrbitalInclination, glm::vec3(0, -1, 0));
+    mat4 moonOrbitTranslate = translate(orbitTranslate, moonPosLocal);
+
+    //float translateXMoonAbsolut = (sin(relativeMoonPositionAngle) * moonOrbitRadius);
+    //float translateXMoon = translateX + translateXMoonAbsolut;
+    //float translateYMoon = translateY + (cos(relativeMoonPositionAngle) * moonOrbitRadius);
+
+    //float maxZTranslationMoon = 0;//moonRadius;
+    //float mOrbit = (2 * maxZTranslationMoon)/(2 * moonRadius);
+    //float zTranslationMoon = mOrbit * translateXMoonAbsolut;
+
+
+    //mat4 moonOrbitTranslate = translate(glm::rotate(vec3(translateXMoon, translateYMoon, zTranslationMoon), moonOrbitalInclination, glm::vec3(0, -1, 0)));
+    //moonOrbitTranslate = glm::rotate(moonOrbitTranslate, moonOrbitalInclination, glm::vec3(0, 1, 0));
+
+
+    mat4 tiltMoon = rotate(moonObliquity, vec3(0, 1, 0));
+
+    float goneByMoonDays = time / moonRotationTime;
+    float dayMoonRotationAngle = radians(360.0) * goneByMoonDays;
+    mat4 rotationMoon = rotate(dayMoonRotationAngle, vec3(0, 0, 1));
+
+
+    moon = moonOrbitTranslate;
+    moon *= tiltMoon;
+    moon *= rotationMoon;
+    moon *= scale(vec3(moonRadius, moonRadius, moonRadius)); // <- Change this line
 
     // d) Orbit Rings
     earthOrbit = glm::scale(vec3(earthOrbitRadius));
-    moonOrbit = glm::translate(vec3(earthOrbitRadius + moonOrbitRadius,0,0)); // <- Change this line
+
+    moonOrbit = glm::translate(vec3(translateX, translateY, 0)); // <- Change this line
+    moonOrbit *= rotate(moonOrbitalInclination, vec3(0, -1, 0));
+    moonOrbit *= scale(vec3(moonOrbitRadius));
 }
 
 void CG::render()
