@@ -9,7 +9,7 @@ function webGLStart(canvas) {
 
     let c = [0.3, 0.2];
     let r = 0.7;
-    let slices = 10;
+    let slices = 100;
     
     let vertices = [];
     let indices = [];
@@ -34,7 +34,6 @@ function webGLStart(canvas) {
         let y = c[1] + r*Math.sin(t);
         vertices.push(x);
         vertices.push(y);
-        console.log(t, x, y);
         t += d_t;
     }
 
