@@ -196,8 +196,15 @@ function Basic4_3(canvas) {
         //			    of the affine transformation equivalent
         //			    to the composition of affineTransf1 and
         //			    affineTransf2.
-        return new AffineTransformation(CompositeLinearTransformations(affineTransf2, affineTransf1).A,
-        [affineTransf2.t[0] + affineTransf1.t[0], affineTransf2.t[1] + affineTransf1.t[1]]);
+        const A = affineTransf1.A;
+        const t = affineTransf1.t;
+        const B = affineTransf2.A;
+        const s = affineTransf2.t;
+        
+        let C = [B[0]*A[0] + B[1]*A[2], B[0]*A[1] + B[1]*A[3], B[2]*A[0] + B[3]*A[2], B[2]*A[1] + B[3]*A[3]];
+        let r = [B[0]*t[0] + B[1]*t[1] + s[0], B[2]*t[0] + B[3]*t[1] + s[1]];
+        return new AffineTransformation(C, r);
+
     }
 
     let context = canvas.getContext("2d");
