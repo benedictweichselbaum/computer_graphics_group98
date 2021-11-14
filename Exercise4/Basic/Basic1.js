@@ -1,3 +1,4 @@
+const { vec2 } = require("./gl-matrix");
 
 
 function arrow(context, fromx, fromy, tox, toy) {
@@ -31,7 +32,7 @@ function Basic1_1(canvas) {
         //              is the x component and point2D[1] is the z 
         //              component (Hint: have a look at the bottom left 
         //              of the output image, there you will see the x-z axis).
-        return 0.0;
+        return point2D[0];
     }
 
     ////////////////////////////////////
@@ -118,8 +119,10 @@ function Basic1_2(canvas) {
         //              everything to camera space. The variable 'imagePlane'
         //              gives you the z value of the image plane (You also have 
         //              to transform it to camera space coordinates.).
-        return 0.0;
-        
+        let aX = point2D[0] - eye[0];
+        let bZ = imagePlane - eye[1];
+        let aZ = point2D[1] - eye[1];
+        return aX * (bZ / aZ);
     }
 
     ////////////////////////////////////
