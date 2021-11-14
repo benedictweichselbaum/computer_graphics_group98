@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
     std::filesystem::current_path( ASSIGNMENT_DIRECTORY );
 
     CG cg(1280,720);
-    cg.startMainLoop();
+    cg.startMainLoop(); 
     return 0;
 
 }
