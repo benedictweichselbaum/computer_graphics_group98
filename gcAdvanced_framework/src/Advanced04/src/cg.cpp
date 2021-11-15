@@ -183,7 +183,7 @@ void CG::renderParticles()
 
 static mat3 orthonormalBasis(vec3 dir)
 {
-    vec3 firstVector = cross(vec3(0, 1, 0), -dir);
+    vec3 firstVector = cross(vec3(0.0, 0.0, dir.z * 38), -dir);
     mat3 v = mat3(
         firstVector,
         cross(firstVector, -dir),
