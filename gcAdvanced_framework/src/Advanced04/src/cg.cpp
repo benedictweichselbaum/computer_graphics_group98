@@ -90,7 +90,7 @@ void CG::update(float dt)
             p.position = particleStart;
             p.lifeTime = glm::linearRand(0.9, 4.0);
             p.timeOffset = glm::linearRand(0.1, 0.5);
-            p.velocity = (planeNormal + glm::linearRand(vec3(0.08, 0.08, 0.08), vec3(0.5, 0.5, 0.5))) * glm::linearRand(2.0, 4.0);
+            p.velocity = (planeNormal + glm::linearRand(vec3(-0.25, -0.25, -0.25), vec3(0.25, 0.25, 0.25))) * glm::linearRand(2.0, 4.0);
         } else {
             p.position += (p.velocity * dt);
         }
