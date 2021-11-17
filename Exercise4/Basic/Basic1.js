@@ -31,7 +31,7 @@ function Basic1_1(canvas) {
         //              is the x component and point2D[1] is the z 
         //              component (Hint: have a look at the bottom left 
         //              of the output image, there you will see the x-z axis).
-        return 0.0;
+        return point2D[0];
     }
 
     ////////////////////////////////////
@@ -118,7 +118,8 @@ function Basic1_2(canvas) {
         //              everything to camera space. The variable 'imagePlane'
         //              gives you the z value of the image plane (You also have 
         //              to transform it to camera space coordinates.).
-        return 0.0;
+        let point2D_camera_system = [point2D[0] - eye[0], point2D[1] - eye[1]];
+        return imagePlane * point2D_camera_system[0] / point2D_camera_system[1];
         
     }
 
@@ -146,7 +147,7 @@ function Basic1_2(canvas) {
 
     // draw image plane
     let eye = [150, 10];
-    let imagePlane = 150;
+    let imagePlane = 150 + 50;
     context.fillStyle = 'rgb(0,0,0)';
     context.fillText("image plane", imagePlane, 290);
     context.strokeStyle = 'rgb(100,100,100)';
@@ -209,21 +210,57 @@ mat3.perspective = function (out, fovy, near, far) {
     //              (as in the lecture), i.e. the camera looks 
     //              into the negative view direction.
     //              Use column-major order!
+    let r = near * Math.tan(fovy / 2);
+    let l = -r;
 
-    out[0] = 0;
+    out[0] = 2 * near / (r-l);
     out[1] = 0;
     out[2] = 0;
 
-    out[3] = 0;
-    out[4] = 0;
-    out[5] = 0;
+    out[3] = (r+l) / (r-l);
+    out[4] = -(far+near) / (far-near);
+    out[5] = -1;
 
     out[6] = 0;
-    out[7] = 0;
+    out[7] = -2*far*near / (far-near);
     out[8] = 0;
 
     return out;
     
+};
+
+mat3.getCameraMatrix = function (out, u, w, e) {
+    out[0] = u[0];
+    out[1] = w[0];
+    out[2] = 0;
+
+    out[3] = u[1];
+    out[4] = w[1];
+    out[5] = 0;
+
+    out[6] = -u[0]*e[0] - u[1]*e[1];
+    out[7] = -w[0]*e[0] - w[1]*e[1];
+    out[8] = 1;
+
+    return out
+};
+
+
+mat3.getCameraMatrixInverse = function (out, u, w, e) {
+    out[0] = u[0];
+    out[1] = u[1];
+    out[2] = 0;
+
+    out[3] = w[0];
+    out[4] = w[1];
+    out[5] = 0;
+
+    out[6] = e[0];
+    out[7] = e[1];
+    out[8] = 1;
+
+    return out
+
 };
 
 
@@ -274,10 +311,13 @@ class Camera {
         //              The cameraMatrixInverse transforms from camera space to world space.
         //              You can use gl-matrix.js where necessary. Use column-major order!
         //              It can be handy to compute the inverted matrix first.
+        const u = [negViewDir[1], -negViewDir[0]];
+        mat3.getCameraMatrix(this.cameraMatrix, u, negViewDir, this.eye);
+        mat3.getCameraMatrixInverse(this.cameraMatrixInverse, u, negViewDir, this.eye);
 
         // TODO 4.1c)   Set up the projection matrix using mat3.perspective(...), 
         //              which has to be implemented!
-
+        mat3.perspective(this.projectionMatrix, this.fovy, this.near, this.far);
     }
 
     /**
@@ -293,8 +333,12 @@ class Camera {
         //              Don't forget to dehomogenize the projected point 
         //              before returning it! You can use gl-matrix.js where
         //              necessary.
-
-        return [0.0, 0.0];
+        let combined_projection = mat3.create();
+        mat3.multiply(combined_projection, this.projectionMatrix, this.cameraMatrix);
+        const point_in_camera_frame = [combined_projection[0] * point2D[0] + combined_projection[3] * point2D[1] + combined_projection[6],
+                                       combined_projection[1] * point2D[0] + combined_projection[4] * point2D[1] + combined_projection[7],
+                                       combined_projection[2] * point2D[0] + combined_projection[5] * point2D[1] + combined_projection[8]];
+        return [point_in_camera_frame[0]/ point_in_camera_frame[2], point_in_camera_frame[1]/ point_in_camera_frame[2]];
     }
 
     render(context) {
