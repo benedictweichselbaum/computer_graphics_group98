@@ -6,3 +6,6 @@
 /home/benedict/Documents/Master_Studium/Semester_1/Computer_Graphics/computer_graphics_group98_exercises/gcAdvanced_framework/build/src/Advanced03/CMakeFiles/rebuild_cache.dir
 /home/benedict/Documents/Master_Studium/Semester_1/Computer_Graphics/computer_graphics_group98_exercises/gcAdvanced_framework/build/src/Advanced03/CMakeFiles/Advanced03.dir
 /home/benedict/Documents/Master_Studium/Semester_1/Computer_Graphics/computer_graphics_group98_exercises/gcAdvanced_framework/build/src/Advanced03/CMakeFiles/edit_cache.dir
+/home/benedict/Documents/Master_Studium/Semester_1/Computer_Graphics/computer_graphics_group98_exercises/gcAdvanced_framework/build/src/Advanced04/CMakeFiles/rebuild_cache.dir
+/home/benedict/Documents/Master_Studium/Semester_1/Computer_Graphics/computer_graphics_group98_exercises/gcAdvanced_framework/build/src/Advanced04/CMakeFiles/Advanced04.dir
+/home/benedict/Documents/Master_Studium/Semester_1/Computer_Graphics/computer_graphics_group98_exercises/gcAdvanced_framework/build/src/Advanced04/CMakeFiles/edit_cache.dir

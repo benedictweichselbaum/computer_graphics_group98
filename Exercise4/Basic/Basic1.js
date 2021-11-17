@@ -118,9 +118,11 @@ function Basic1_2(canvas) {
         //              everything to camera space. The variable 'imagePlane'
         //              gives you the z value of the image plane (You also have 
         //              to transform it to camera space coordinates.).
-        let point2D_camera_system = [point2D[0] - eye[0], point2D[1] - eye[1]];
-        return imagePlane * point2D_camera_system[0] / point2D_camera_system[1];
-        
+
+        let aX = point2D[0] - eye[0];
+        let bZ = imagePlane - eye[1];
+        let aZ = point2D[1] - eye[1];
+        return aX * (bZ / aZ);
     }
 
     ////////////////////////////////////
@@ -210,8 +212,8 @@ mat3.perspective = function (out, fovy, near, far) {
     //              (as in the lecture), i.e. the camera looks 
     //              into the negative view direction.
     //              Use column-major order!
-    let r = near * Math.tan(fovy / 2);
-    let l = -r;
+    const r = near * Math.tan(fovy / 2);
+    const l = -r;
 
     out[0] = 2 * near / (r-l);
     out[1] = 0;
@@ -225,7 +227,7 @@ mat3.perspective = function (out, fovy, near, far) {
     out[7] = -2*far*near / (far-near);
     out[8] = 0;
 
-    return out;
+    return out
     
 };
 
@@ -260,7 +262,6 @@ mat3.getCameraMatrixInverse = function (out, u, w, e) {
     out[8] = 1;
 
     return out
-
 };
 
 
