@@ -22,7 +22,7 @@
 
     // 1. Set up a color as a return value, and initialize it with the 
     //    desired background color.
-    color = [255, 255, 255];
+    let color = [255, 255, 255];
     // 2. Loop over the four circle images in the correct order to blend
     //    them one after another.
     for (let i = 0; i<images.length; i++) {
