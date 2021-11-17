@@ -16,16 +16,54 @@ mat4.perspective = function (out, fovy, near, far) {
     // TODO 4.2     Implement the creation of the projection
     //              matrix for 3D. Orientate yourselves by the 2D case
     //              implemented in Basic1.js.
+    const aspect = 1;
+    const r = aspect * near * Math.tan(fovy / 2);
+    const l = -r;
+    const t = near * Math.tan(fovy / 2);
+    const b = -t;
 
-    // out[0] = ?
-    // out[1] = ?
-    // ...
+    out[0] = 2 * near / (r - l);
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
 
+    out[4] = 0;
+    out[5] = 2 * near / (t - b);
+    out[6] = 0;
+    out[7] = 0;
 
+    out[8] = (l + r) / (r - l);
+    out[9] = (b + t) / (t - b);
+    out[10] = - (far + near) / (far - near);
+    out[11] = -1;
 
-
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = -2 * far * near / (far - near);
+    out[15] = 0;
 };
 
+mat4.getCameraMatrix = function (out, u, v, w, e) {
+    out[0] = u[0];
+    out[1] = v[0];
+    out[2] = w[0];
+    out[3] = 0;
+
+    out[4] = u[1];
+    out[5] = v[1];
+    out[6] = w[1];
+    out[7] = 0;
+
+    out[8] = u[2];
+    out[9] = v[2];
+    out[10] = w[2];
+    out[11] = 0;
+
+    out[12] = -u[0]*e[0] - u[1]*e[1] - u[2]*e[2];
+    out[13] = -v[0]*e[0] - v[1]*e[1] - v[2]*e[2];
+    out[14] = -w[0]*e[0] - w[1]*e[1] - w[2]*e[2];
+    out[15] = 1;
+};
 
 /**
  * a camera rendering a 3D scene to a 2D plane
@@ -98,21 +136,25 @@ class Camera3D {
         //              the camera coordinate system. Use the  
         //              notation from the lecture.
         //              Again, be careful to use column-major notation.
+        let g = vec3.create();
+        vec3.subtract(g, this.lookAtPoint, this.eye);
+        this.w = vec3.create();
+        vec3.negate(this.w, g);
+        vec3.normalize(this.w, this.w);
+        this.u = vec3.create();
+        vec3.cross(this.u, this.upVector, this.w);
+        vec3.normalize(this.u, this.u);
+        this.v = vec3.create();
+        vec3.cross(this.v, this.w, this.u);
 
-        // this.w = ?
-        // this.u = ?
-        // this.v = ? 
-
-
-
-
-        // this.cameraMatrix = ?
-
-
-
+        let camMat = mat4.create();
+        mat4.getCameraMatrix(camMat, this.u, this.v, this.w, this.eye);
 
         // use (and implement) mat4.perspective to set up the projection matrix
-        mat4.perspective(this.projectionMatrix, this.fovy, this.near, this.far);
+        let projMat = mat4.create();
+        mat4.perspective(projMat, this.fovy, this.near, this.far);
+
+        this.setMatrices(camMat, projMat);
     }
 } // end of Camera3D
 
