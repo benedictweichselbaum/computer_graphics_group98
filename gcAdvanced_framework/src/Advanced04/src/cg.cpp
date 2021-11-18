@@ -184,7 +184,7 @@ void CG::renderParticles()
 static mat3 orthonormalBasis(vec3 dir)
 {
     vec3 negDirectionNormalized = normalize(-dir);
-    vec3 firstVector = normalize(cross(vec3(0.0, 0.0, dir.z + 10), negDirectionNormalized));
+    vec3 firstVector = normalize(cross(vec3(dir.y +3, dir.x + 5, dir.z + 10), negDirectionNormalized));
     mat3 v = mat3(
         firstVector,
         cross(firstVector, negDirectionNormalized),

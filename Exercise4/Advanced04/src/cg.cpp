@@ -85,6 +85,15 @@ void CG::update(float dt)
         // Use the following methods to get random values:
         // float glm::linearRand(float min, float max);
         // vec3 glm::linearRand(vec3 min, vec3 max);
+
+        if (p.lifeTime < 0) {
+            p.position = particleStart;
+            p.lifeTime = glm::linearRand(0.9, 4.0);
+            p.timeOffset = glm::linearRand(0.1, 0.5);
+            p.velocity = (planeNormal + glm::linearRand(vec3(-0.25, -0.25, -0.25), vec3(0.25, 0.25, 0.25))) * glm::linearRand(2.0, 4.0);
+        } else {
+            p.position += (p.velocity * dt);
+        }
     }
 }
 
@@ -122,11 +131,12 @@ void CG::renderOpaqueGeometryShadows()
     // TODO 4.4 b)
     // Remove Z-fighting with glPolygonOffset. Use -1 for both parameters.
     // Don't forget enabling and disabling polygon offsetting via glEnable() and glDisable().
-
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(-1.0, -1.0);
     glUniform4fv(2,1,&vec4(0,0,0,1)[0]);
     glUniformMatrix4fv(1, 1, GL_FALSE, &teapot[0][0]);
     teapotMesh.render();
-
+    glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 void CG::renderParticles()
@@ -142,6 +152,9 @@ void CG::renderParticles()
     // Render particles with alpha blending.
     // Use glBlendFunc.
     // Don't forget enabling and disabling blending via glEnable() and glDisable().
+    glEnable(GL_BLEND);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
     for(Particle& p : particles)
@@ -155,7 +168,7 @@ void CG::renderParticles()
 		// The upper left 3x3 part of a matrix can be obtained by mat3(matrix),
 		// a 3x3 matrix can be transformed to a 4x4 one by mat4(matrix).
 
-        mat4 particleTransformation =  glm::translate(p.position); // <- Change this line
+        mat4 particleTransformation = glm::translate(p.position) * mat4(glm::inverse(mat3(camera.getViewMatrix()))) * rotate((float) radians(90.0), vec3(1.0, 0.0, 0.0)); // <- Change this line
 
         glUniformMatrix4fv(1, 1, GL_FALSE, &particleTransformation[0][0]);
         float timeTmp = time + p.timeOffset;
@@ -163,14 +176,20 @@ void CG::renderParticles()
         planeMesh.render();
     }
 
-
+    glDisable(GL_BLEND);
 
 }
 
 
 static mat3 orthonormalBasis(vec3 dir)
 {
-    mat3 v = mat3();
+    vec3 negDirectionNormalized = normalize(-dir);
+    vec3 firstVector = normalize(cross(vec3(dir.y +3, dir.x + 5, dir.z + 10), negDirectionNormalized));
+    mat3 v = mat3(
+        firstVector,
+        cross(firstVector, negDirectionNormalized),
+        -dir
+    );
     // TODO: 4.4 f)
     // Create an orthonormal basis from the unit vector "dir" and store it in "v".
 	// The last column (v[2]) should be the negative "dir".
@@ -193,15 +212,25 @@ void CG::renderParticleShadows()
     // Render particles with alpha blending.
     // Remove Z-figthing with glPolygonOffset.
     // Don't forget enabling and disabling everything.
+
+    glEnable(GL_BLEND);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     for(Particle& p : particles)
     {
         mat3 v = orthonormalBasis(lightDir);
         mat4 particleTransformation =  glm::translate(p.position) *  mat4(v) * glm::rotate(glm::radians(90.0f),vec3(1,0,0));
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(-1.0, -1.0);
         glUniformMatrix4fv(1, 1, GL_FALSE, &particleTransformation[0][0]);
         float timeTmp = time + p.timeOffset;
         glUniform1fv(6,1,&timeTmp);
         planeMesh.render();
+        glDisable(GL_POLYGON_OFFSET_FILL);
     }
+
+    glDisable(GL_BLEND);
 
 }
 
