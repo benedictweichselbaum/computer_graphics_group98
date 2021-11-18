@@ -14,6 +14,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "../cmake/FindSDL2.cmake"
   "../src/Advanced03/CMakeLists.txt"
   "../src/Advanced04/CMakeLists.txt"
+  "../src/Advanced05/CMakeLists.txt"
   "../src/CMakeLists.txt"
   "/snap/cmake/955/share/cmake-3.21/Modules/CMakeCXXInformation.cmake"
   "/snap/cmake/955/share/cmake-3.21/Modules/CMakeCommonLanguageInclude.cmake"
@@ -59,6 +60,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "src/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/Advanced03/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/Advanced04/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/Advanced05/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -66,4 +68,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "src/CMakeFiles/CG_Framework.dir/DependInfo.cmake"
   "src/Advanced03/CMakeFiles/Advanced03.dir/DependInfo.cmake"
   "src/Advanced04/CMakeFiles/Advanced04.dir/DependInfo.cmake"
+  "src/Advanced05/CMakeFiles/Advanced05.dir/DependInfo.cmake"
   )

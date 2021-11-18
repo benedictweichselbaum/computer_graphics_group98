@@ -155,6 +155,19 @@ Advanced04/fast:
 	$(MAKE) $(MAKESILENT) -f src/Advanced04/CMakeFiles/Advanced04.dir/build.make src/Advanced04/CMakeFiles/Advanced04.dir/build
 .PHONY : Advanced04/fast
 
+#=============================================================================
+# Target rules for targets named Advanced05
+
+# Build rule for target.
+Advanced05: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Advanced05
+.PHONY : Advanced05
+
+# fast build rule for target.
+Advanced05/fast:
+	$(MAKE) $(MAKESILENT) -f src/Advanced05/CMakeFiles/Advanced05.dir/build.make src/Advanced05/CMakeFiles/Advanced05.dir/build
+.PHONY : Advanced05/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +178,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... Advanced03"
 	@echo "... Advanced04"
+	@echo "... Advanced05"
 	@echo "... CG_Framework"
 .PHONY : help
 
