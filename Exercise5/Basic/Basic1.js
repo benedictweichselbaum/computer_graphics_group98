@@ -113,17 +113,29 @@ function PhongLighting(context, point, normal, eye, pointLight, albedo, showVect
     // 1. Compute view vector v, light vector l and the reflected light vector r (all pointing away from the point and normalized!).
     //    Note: To help you implementing this task, we draw the computed vectors for the user specified sample point.
     //    Replace the following dummy lines:
-    let v = vec2.fromValues(0, 0);
-    let l = vec2.fromValues(0, 0);
+    let v = [0, 0];
+    vec2.normalize(v, vec2.fromValues((eye[0] - point[0]), (eye[1] - point[1])));
+    let l = [0, 0];
+    vec2.normalize(l, vec2.fromValues(- (point[0] - pointLight[0]), - (point[1] - pointLight[1])));
     let r = vec2.fromValues(0, 0);
+
+    let dn = 2 * vec2.dot(l, normal);
+
+    vec2.normalize(r, vec2.fromValues(-(l[0] - (normal[0] * dn)), -(l[1] - (normal[1] * dn))));
 
     // 2. Compute the ambient part, use 0.1 * albedo as ambient material property.
     //    You can check your results by setting "color" (defined below) to only ambient part - 
     //    this should give you constant dark green.
 
+    let l_amb = vec3.fromValues(albedo[0] * 0.1, albedo[1] * 0.1, albedo[2] * 0.1);
+
     // 3. Compute the diffuse part, use 0.5 * albedo as diffuse material property.
     //    You can check your results by setting "color" (defined below) to only diffuse part - 
     //    this should give you a color which gets lighter the more the plane's normal coincides with the direction to the light.
+
+
+    let cos_theta = dn / 2;
+    let l_diff = vec3.fromValues(albedo[0] * 0.5 * cos_theta, albedo[1] * 0.5 * cos_theta, albedo[2] * 0.5 * cos_theta);
 
     // 4. Compute the specular part, assume an attenuated white specular material property (0.4 * [1.0, 1.0, 1.0]).
     //    Use the defined shiny factor.
@@ -131,10 +143,15 @@ function PhongLighting(context, point, normal, eye, pointLight, albedo, showVect
     //    this should give you a grey spotlight where view direction and reflection vector coincide.
     let shiny = 30.0;
 
+    let cos_shiny = vec2.dot(r, v);
+
+    let l_spec = vec3.fromValues(0.4 * Math.pow(cos_shiny, shiny), 0.4 * Math.pow(cos_shiny, shiny), 0.4 * Math.pow(cos_shiny, shiny));
+
     // 5. Add ambient, diffuse and specular color.
     //    Store the result in the variable color - replace the following dummy line:
     let color = vec3.create();
-
+    vec3.add(color, l_amb, l_diff);
+    vec3.add(color, color, l_spec);
 
 
 
@@ -328,12 +345,21 @@ function Basic1_2(canvas) {
             // TODO 5.1b) Implement Flat Shading of the line segments - follow the stepwise instructions below:
 
             // 1. Compute representor of the primitive (-> midpoint on the line segment).
+            let representor = vec2.fromValues(
+                (lineSegments[i][1][0] + lineSegments[i][0][0]) / 2,
+                (lineSegments[i][1][1] + lineSegments[i][0][1]) / 2
+            );
 
             // 2. Compute the normal of the line segment.
+            let normal = vec2.fromValues(
+                -(lineSegments[i][1][1] - lineSegments[i][0][1]), lineSegments[i][1][0] - lineSegments[i][0][0]
+            );
 
             // 3. Use the function PhongLighting that you implemented in the previous assignment to evaluate the color.
+            let color = PhongLighting(context, representor, normal, eye, pointLight, albedo, false);
 
             // 4. Set the stroke color (use setStrokeStyle() defined in this .js-file).
+            setStrokeStyle(context, color);
 
 
 
