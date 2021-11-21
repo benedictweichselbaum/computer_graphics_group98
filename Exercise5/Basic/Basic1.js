@@ -463,7 +463,7 @@ function Basic1_3(canvas) {
             // TODO 5.1c) Implement Gouraud Shading of the line segments - follow the stepwise instructions below:
 
             // 1. Compute vertex normals by interpolating between normals of adjacent line segments (weighted by line segment length!). Take care of border cases.
-
+            
 
             // 2. Evaluate the color at the vertices using the PhongLighting function.
 
