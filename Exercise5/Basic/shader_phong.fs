@@ -73,7 +73,7 @@ void main(void)
 	float temp = 2.0 * dot(n, normLightDir);
 
 	vec3 r = vec3(n.x * temp, n.y * temp, n.z * temp) - normLightDir;
-	color_specular = k_spec * pow(dot(cameraPos, r), shiny);
+	color_specular = k_spec * pow(dot(cameraPos, normalize(r)), shiny);
 
 
 	///////////////////////////////////

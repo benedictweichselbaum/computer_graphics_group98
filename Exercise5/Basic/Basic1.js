@@ -119,7 +119,7 @@ function PhongLighting(context, point, normal, eye, pointLight, albedo, showVect
     vec2.normalize(l, vec2.fromValues(- (point[0] - pointLight[0]), - (point[1] - pointLight[1])));
     let r = vec2.fromValues(0, 0);
 
-    let dn = 2 * vec2.dot(l, normal);
+    let dn = 2 * vec2.dot(normal, l);
 
     vec2.normalize(r, vec2.fromValues(-(l[0] - (normal[0] * dn)), -(l[1] - (normal[1] * dn))));
 
@@ -134,7 +134,7 @@ function PhongLighting(context, point, normal, eye, pointLight, albedo, showVect
     //    this should give you a color which gets lighter the more the plane's normal coincides with the direction to the light.
 
 
-    let cos_theta = dn / 2;
+    let cos_theta = vec2.dot(normal, l);
     let l_diff = vec3.fromValues(albedo[0] * 0.5 * cos_theta, albedo[1] * 0.5 * cos_theta, albedo[2] * 0.5 * cos_theta);
 
     // 4. Compute the specular part, assume an attenuated white specular material property (0.4 * [1.0, 1.0, 1.0]).

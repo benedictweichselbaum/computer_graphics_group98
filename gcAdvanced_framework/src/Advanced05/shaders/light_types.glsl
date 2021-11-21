@@ -98,8 +98,11 @@ vec3 phong(
     return color_ambient + color_diffuse + color_specular;
 }
 
-
-
+float quantizedVValue(vec3 hsv) {
+    if (hsv[2] <= 0.333) return 0;
+    else if (hsv[2] > 0.333 && hsv[2] <= 0.666) return 0.5;
+    else return 1;
+}
 
 vec3 rgb2hsv(vec3 c)
 {
@@ -174,7 +177,16 @@ void main()
     if(cellShading)
     {
         //TODO 5.4 e)
-        
+        vec3 colorDirectional_hsv = rgb2hsv(colorDirectional);
+        vec3 colorSpot_hsv = rgb2hsv(colorSpot);
+        vec3 colorPoint_hsv = rgb2hsv(colorPoint);
+
+        colorDirectional_hsv[2] = quantizedVValue(colorDirectional_hsv);
+        colorSpot_hsv[2] = quantizedVValue(colorSpot_hsv);
+        colorPoint_hsv[2] = quantizedVValue(colorPoint_hsv);
+
+        out_color = hsv2rgb(colorDirectional_hsv) + hsv2rgb(colorSpot_hsv) + hsv2rgb(colorPoint_hsv);
+
     }else
     {
         out_color = colorDirectional + colorSpot + colorPoint;
