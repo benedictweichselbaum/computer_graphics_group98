@@ -354,6 +354,7 @@ function Basic1_2(canvas) {
             let normal = vec2.fromValues(
                 -(lineSegments[i][1][1] - lineSegments[i][0][1]), lineSegments[i][1][0] - lineSegments[i][0][0]
             );
+            vec2.normalize(normal, normal);
 
             // 3. Use the function PhongLighting that you implemented in the previous assignment to evaluate the color.
             let color = PhongLighting(context, representor, normal, eye, pointLight, albedo, false);
