@@ -525,10 +525,10 @@ function Basic1_3(canvas) {
                 return '#' + to_hex(rgb_color[0]) + to_hex(rgb_color[1]) + to_hex(rgb_color[2]);
             }
             let gradient = context.createLinearGradient(end[1], end[0], start[1], start[0]);
-            color_rgb1 = floatToColor(color1)
-            color1_hex = to_hex_color(color_rgb1);
-            color_rgb2 = floatToColor(color2);
-            color2_hex = to_hex_color(color_rgb2);
+            let color_rgb1 = floatToColor(color1)
+            let color1_hex = to_hex_color(color_rgb1);
+            let color_rgb2 = floatToColor(color2);
+            let color2_hex = to_hex_color(color_rgb2);
             gradient.addColorStop(1, color1_hex);
             gradient.addColorStop(0, color2_hex);
             context.strokeStyle = gradient;

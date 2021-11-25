@@ -1,0 +1,3 @@
+In task 5.1 you can see that for a certain number of line segments (e.g. 4 in 5.1b and 5 in 5.1c) the specular highlight in the middle disappears.
+That is because in flat and Gouraud shading we only look at certain representors of the line segments. If their calculated lighting does not "include" a specular highlight the whole segment can not have a specular highlight because the shading expands the "wrong" lighting to the whole segment.
+In Phong shading there is not such a problem because instead of using interpolation (Gouraud) or setting a fixed value (Flat) each single pixel gets calculated according to the phong shading model.
