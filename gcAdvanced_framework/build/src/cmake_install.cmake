@@ -57,3 +57,8 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/benedict/Documents/Master_Studium/Semester_1/Computer_Graphics/computer_graphics_group98_exercises/gcAdvanced_framework/build/src/Advanced05/cmake_install.cmake")
 endif()
 
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/benedict/Documents/Master_Studium/Semester_1/Computer_Graphics/computer_graphics_group98_exercises/gcAdvanced_framework/build/src/Advanced06/cmake_install.cmake")
+endif()
+
