@@ -1,3 +1,4 @@
 {
-    "cSpell.language": "de-DE,en-US"
+    "cSpell.language": "de-DE,en-US",
+    "cmake.configureOnOpen": false
 }
