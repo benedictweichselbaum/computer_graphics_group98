@@ -1,4 +1,3 @@
-
 --vertex
 layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec3 in_normal;
@@ -88,14 +87,22 @@ vec3 phong(
     //  light.ambientIntensity
 	//as well as the other function parameters.
 
-    vec3 color_ambient  = vec3(0);
-	vec3 color_diffuse  = vec3(0);
-    vec3 color_specular = vec3(0);
+    vec3 color_ambient  = surfaceColor * light.ambientIntensity;
+
+    vec3 k_diff = surfaceColor;
+	vec3 color_diffuse  = k_diff * light.diffuseIntensity * light.color * dot(n, normalize(l));
+
+    vec3 r = 2.0 * dot(n, normalize(l)) * n - normalize(l);
+    vec3 color_specular = vec3(1) * light.specularIntensity * pow(dot(normalize(v), normalize(r)), light.shiny);
+
     return color_ambient + color_diffuse + color_specular;
 }
 
-
-
+float quantizedVValue(vec3 hsv) {
+    if (hsv[2] <= 0.333) return 0;
+    else if (hsv[2] > 0.333 && hsv[2] <= 0.666) return 0.5;
+    else return 1;
+}
 
 vec3 rgb2hsv(vec3 c)
 {
@@ -132,21 +139,37 @@ void main()
     {
         // TODO 5.4 b)
         // Use the uniforms "directionalLight" and "objectColor" to compute "colorDirectional". 
-        colorDirectional = vec3(0); //<- change this line
+        colorDirectional = phong(directionalLight, objectColor, n, -normalize(directionalLight.direction), v); //<- change this line
     }
 
     if(pointLight.enable)
     {
         //TODO 5.4 c)
         //Use the uniforms "pointLight" and "objectColor" to compute "colorPoint".
-        colorPoint = vec3(0); //<- change this line
+        float r = distance(positionWorldSpace, pointLight.position);
+        vec3 directionPoint = normalize(pointLight.position - positionWorldSpace);
+    
+        colorPoint = (phong(pointLight, objectColor, n, directionPoint, v)) * (1 / 
+                    (pointLight.attenuation[0] + pointLight.attenuation[1] * r + pointLight.attenuation[2] * pow(r, 2))); //<- change this line
     }
 
     if(spotLight.enable)
     {
         //TODO 5.4 d)
         //Use the uniforms "spotLight" and "objectColor" to compute "colorSpot".
-        colorSpot = vec3(0); //<- change this line
+        float r = distance(positionWorldSpace, spotLight.position);
+        vec3 directionPoint = normalize(spotLight.position - positionWorldSpace);
+
+        float M_PI = 3.1415926535897932384626433832795;
+
+        float angle = ((acos(dot(-directionPoint, normalize(spotLight.direction)))));
+        if (angle > spotLight.angle) {
+            colorSpot = vec3(0);
+        } else {
+            vec3 temp_colorPoint = (phong(spotLight, objectColor, n, directionPoint, v)) * (1 / 
+                    (spotLight.attenuation[0] + spotLight.attenuation[1] * r + spotLight.attenuation[2] * pow(r, 2)));
+            colorSpot =temp_colorPoint * smoothstep(spotLight.angle, spotLight.angle * spotLight.sharpness, angle);
+        }
     }
 
 
@@ -154,6 +177,15 @@ void main()
     if(cellShading)
     {
         //TODO 5.4 e)
+        vec3 colorDirectional_hsv = rgb2hsv(colorDirectional);
+        vec3 colorSpot_hsv = rgb2hsv(colorSpot);
+        vec3 colorPoint_hsv = rgb2hsv(colorPoint);
+
+        colorDirectional_hsv[2] = quantizedVValue(colorDirectional_hsv);
+        colorSpot_hsv[2] = quantizedVValue(colorSpot_hsv);
+        colorPoint_hsv[2] = quantizedVValue(colorPoint_hsv);
+
+        out_color = hsv2rgb(colorDirectional_hsv) + hsv2rgb(colorSpot_hsv) + hsv2rgb(colorPoint_hsv);
 
     }else
     {
