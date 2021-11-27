@@ -2,6 +2,7 @@
 ////////   Helpers   ////////
 /////////////////////////////
 
+
 /**
  * Converts a color given in float range [0,1] to the integer range [0,255]
  * @param {number[]} rgb_float - three float color values [r,g,b] in the range [0,1]
@@ -110,16 +111,39 @@ function Basic1a(canvas) {
 
         // TODO 6.1a)   Implement bilinear interpolation of the texture stored in the global variable "texture"
         // 1. Given the current uv coordinates, determine the uv coordinates of the 4 surrounding pixels (use Math.floor / Math.ceil).
+        let u1 = Math.floor(u);
+        let v1 = Math.floor(v);
+
+        let u2 = Math.ceil(u);
+        let v2 = Math.floor(v);
+
+        let u3 = Math.ceil(u);
+        let v3 = Math.ceil(v);
+
+        let u4 = Math.floor(u);
+        let v4 = Math.ceil(v);
 
         // 2. Compute the linear indices of the surrounding pixels (e.g. idx = texDimU * v + u;).
+        let idx1 = texDimU * v1 + u1;
+        let idx2 = texDimU * v2 + u2;
+        let idx3 = texDimU * v3 + u3;
+        let idx4 = texDimU * v4 + u4;
 
         // 3. Interpolate linearly in u (use interpolateColor()). 
         //    You can access the color at index 'idx' using texture[idx].
+        let m1 = 1 / (u2 - u1);
+        let t1 = 1 - (1 / m1) * u2; 
+        let color11 = interpolateColor(texture[idx1], texture[idx2], m1 * u + t1);
+        let color12 = interpolateColor(texture[idx4], texture[idx3], m1 * u + t1);
+   
 
         // 4. Interpolate linearly in v (use interpolateColor()).
+        let m2 = 1 / (v3 - v2);
+        let t2 = 1 - (1 / m1) * v3; 
+        let color21 = interpolateColor(color11, color12, m2 * v + t2);
 
         // replace this line
-        return [0.7, 0.7, 0.7];
+        return color21;
     }
 
     function Render() {
@@ -204,6 +228,7 @@ class MipMap {
         this.texLevels[0] = new Array(texDim);
         for (let i = 0; i < texDim; ++i) this.texLevels[0][i] = [texture1D[i][0], texture1D[i][1], texture1D[i][2]];
 
+
         // TODO 6.1b)   Compute the MIP map pyramid.
         //              Use a simple boxfilter (same weight for 
         //              both contributors) to compute the
@@ -211,11 +236,18 @@ class MipMap {
         //              the texture to be a power of 2.
         for (let l = 1; l < this.nLevel; ++l) {
             // 1. Compute the texture dimension of level 'l'.
-
+            let newTexDim = texDim / 2;
             // 2. Allocate an array with the right dimension (see code for the 0th level above).
-
+            this.texLevels[l] = new Array(newTexDim);
             // 3. Compute the color values using a boxfilter.
-
+            for (let i = 0; i < texDim; i = i + 2) {
+                let color1 = this.texLevels[l-1][i];
+                let color2 = this.texLevels[l-1][i + 1];
+                console.log(color2);
+                let outputColor = [(color1[0] + color2[0]) / 2, (color1[1] + color2[1]) / 2, (color1[2] + color2[2]) / 2];
+                this.texLevels[l][i / 2] = outputColor;
+            }
+            texDim = newTexDim;
         }
     }
 
@@ -292,16 +324,25 @@ function Basic1b(canvas) {
 
         // TODO 6.1b)   Determine the appropriate level based on the footprint of the pixel.
         // 1. Use pixelBottom_proj[2] and pixelTop_proj[2] to determine the footprint of the pixel on the texture.
-        
+        let footprint = Math.abs(pixelBottom_proj[2] - pixelTop_proj[2]);
+        console.log(footprint)
 
         // 2. Determine the mipmap level where the texel size is larger than the pixel footprint.
         //    Use the mipmap pyramid stored in 'mipmap'.
         //    The texel size of the coarsest level is defined to be 1.
 
-
         // replace this line
-        let level = 0;
+        let level;
+        let texelSize = 1;
+        for (let x = 0; x < mipmap.nLevel - 1; x++) texelSize = texelSize / 2;
 
+        for (let x = 0; x < mipmap.nLevel; x++) {
+            level = x;
+            if (texelSize >= footprint) {
+                break;
+            }
+            texelSize = texelSize * 2;
+        }
         return level;
     }
 
