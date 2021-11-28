@@ -42,9 +42,21 @@ function Basic2a(canvas) {
     // TODO 6.2
     // Project triangle (Use the helper functions vec4.transformMat4(out, a, M) and vec3.dehomogenize( v4 ) ).
     // Then render the projected triangle instead of the original triangle!
+    let aT = vec4.fromValues(triangle[0][0], triangle[0][1], triangle[0][2], 1);
+    vec4.transformMat4(aT, aT, M);
+    aT = vec3.dehomogenize(aT);
+
+    let bT = vec4.fromValues(triangle[1][0], triangle[1][1], triangle[1][2], 1);
+    vec4.transformMat4(bT, bT, M);
+    bT = vec3.dehomogenize(bT);
+
+    let cT = vec4.fromValues(triangle[2][0], triangle[2][1], triangle[2][2], 1);
+    vec4.transformMat4(cT, cT, M);
+    cT = vec3.dehomogenize(cT);
+
 
     // Replace this dummy line!
-    drawTriangle(context, canvasWidth, canvasHeight, triangle, ["A'", "B'", "C'"]);
+    drawTriangle(context, canvasWidth, canvasHeight, [aT, bT, cT], ["A'", "B'", "C'"]);
     
     // draw axis
     arrow(context, 15, 285, 15, 255);
@@ -73,13 +85,27 @@ function Basic2b(canvas) {
 
     // TODO 6.2
     // 1. Project the triangle.
+    let aT = vec4.fromValues(triangle[0][0], triangle[0][1], triangle[0][2], 1);
+    vec4.transformMat4(aT, aT, M);
+    aT = vec3.dehomogenize(aT);
+
+    let bT = vec4.fromValues(triangle[1][0], triangle[1][1], triangle[1][2], 1);
+    vec4.transformMat4(bT, bT, M);
+    bT = vec3.dehomogenize(bT);
+
+    let cT = vec4.fromValues(triangle[2][0], triangle[2][1], triangle[2][2], 1);
+    vec4.transformMat4(cT, cT, M);
+    cT = vec3.dehomogenize(cT);
+
+    let projectedTriangle = [aT, bT, cT];
 
     // 2. Compute the midpoints of the edges (Use the helper function midPoint defined above!)
     //    and store them in another triangle.
+    let innerTriangle = [midPoint(aT, bT), midPoint(aT, cT), midPoint(bT, cT)];
 
     // 3. Draw the triangles (Leave last argument undefined for inner triangle!).
-
-    
+    drawTriangle(context, canvasWidth, canvasHeight, projectedTriangle, ["A'", "B'", "C'"]);
+    drawTriangle(context, canvasWidth, canvasHeight, innerTriangle, undefined);
     // draw axis
     arrow(context, 15, 285, 15, 255);
     arrow(context, 15, 285, 45, 285);
@@ -109,12 +135,37 @@ function Basic2c(canvas) {
     let M = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -2.0, -1.0, 0.0, 0.0, -3.0, 0.0];
     // TODO 6.2
     // 1. Project the triangle and store it in homogeneous coordinates.
+    let aT = vec4.fromValues(triangle[0][0], triangle[0][1], triangle[0][2], 1);
+    vec4.transformMat4(aT, aT, M);
 
+    let bT = vec4.fromValues(triangle[1][0], triangle[1][1], triangle[1][2], 1);
+    vec4.transformMat4(bT, bT, M);
+
+    let cT = vec4.fromValues(triangle[2][0], triangle[2][1], triangle[2][2], 1);
+    vec4.transformMat4(cT, cT, M);
+
+    let projectedHomTriangle = [aT, bT, cT];
     // 2. Compute the mid points, but this time in homogeneous coordinates (Make use of midPoint()!).
+    let midTriangle = [midPoint(vec4.fromValues(triangle[0][0], triangle[0][1], triangle[0][2], 1), vec4.fromValues(triangle[1][0], triangle[1][1], triangle[1][2], 1)),
+                        midPoint(vec4.fromValues(triangle[0][0], triangle[0][1], triangle[0][2], 1), vec4.fromValues(triangle[2][0], triangle[2][1], triangle[2][2], 1)),
+                        midPoint(vec4.fromValues(triangle[1][0], triangle[1][1], triangle[1][2], 1), vec4.fromValues(triangle[2][0], triangle[2][1], triangle[2][2], 1))];
+
+    vec4.transformMat4(midTriangle[0], midTriangle[0], M);
+    vec4.transformMat4(midTriangle[1], midTriangle[1], M);
+    vec4.transformMat4(midTriangle[2], midTriangle[2], M);
+    
 
     // 3. Dehomogenize the points.
+    projectedHomTriangle[0] = vec3.dehomogenize(projectedHomTriangle[0]);
+    projectedHomTriangle[1] = vec3.dehomogenize(projectedHomTriangle[1]);
+    projectedHomTriangle[2] = vec3.dehomogenize(projectedHomTriangle[2]);
 
+    midTriangle[0] = vec3.dehomogenize(midTriangle[0]);
+    midTriangle[1] = vec3.dehomogenize(midTriangle[1]);
+    midTriangle[2] = vec3.dehomogenize(midTriangle[2]);
     // 4. Draw the triangles (Leave last argument undefined for inner triangle!).
+    drawTriangle(context, canvasWidth, canvasHeight, projectedHomTriangle, ["A'", "B'", "C'"]);
+    drawTriangle(context, canvasWidth, canvasHeight, midTriangle, undefined);
 
     
     // draw axis

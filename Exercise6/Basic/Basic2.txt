@@ -1,0 +1,2 @@
+6.2b: No the triangle is not drawn perspectively correct. The inner triangle has its its points on the perceived mid points of the outer triangle. But in perspective the real mid points are not necessary the perceived midmpoints.
+6.2c: Here the perspective is correct. 
