@@ -47,5 +47,6 @@ void main() {
 	//   You can reach this goal by taking the dot product 
 	//   between normal and direction to the light into account again.
     float cloudAlpha = 0.5;
-    out_color = vec4(1,1,1,cloudAlpha);
+    float cloudColor = texture(earthClouds, tc).x;
+    out_color = vec4(vec3(1), min(mix(0, cloudAlpha, dot(normal, normalize(sunPosition - positionWorldSpace))), cloudColor));
 }

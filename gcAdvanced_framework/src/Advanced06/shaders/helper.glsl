@@ -4,9 +4,9 @@ vec2 cartesianToSpherical(vec3 n)
     // Convert cartesian coordinates to spherical coordinates. 
     // For computing the inverse tangent, use the two-argument
     // version of atan().
-    float theta = 0;
-    float phi = 0;
-    return vec2(theta,phi);
+    float theta = atan(n.z, n.x);
+    float phi = acos(n.y);
+    return vec2(theta, phi);
 }
 
 vec3 sphericalToCartesian(vec2 a)
@@ -16,7 +16,7 @@ vec3 sphericalToCartesian(vec2 a)
 
     // TODO 6.4 a)
     // Convert spherical coordinates to cartesian coordinates.
-    return vec3(0,0,0);
+    return vec3(sin(phi) * cos(theta), cos(phi), sin(phi) * sin(theta));
 }
 
 
@@ -30,6 +30,9 @@ vec2 sphericalToTexture(vec2 a)
     // Compute texture coordinates from spherical coordinates.
 	// Do not forget to mirror both coordinates to have the north pole at the top 
 	// and France located west of Germany! ;)
-    return vec2(0,0);
+    float u = (theta / (2.0 * PI)) + 0.5;
+    float v = (phi / PI);
+
+    return vec2(1 - u, 1- v);
 }
 
