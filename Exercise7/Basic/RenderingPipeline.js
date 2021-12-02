@@ -108,9 +108,16 @@ class DepthBuffer {
         //              (depthTestMode) and the depth value in fixed point representation.
         //              depthTestMode: 0 = no depth test (always pass), 1 = pass if less, -1 = pass if greater
         //              Depth testing takes place in the fragment shader.
-        if (true) { // adapt this condition
-            this.data[x] = newValue;
+        if (depthTestMode == 0) { // adapt this condition
             return true;
+        } else if (depthTestMode == 1) {
+            let passed = newValue < oldValue;
+            this.data[x] = passed ? newValue : oldValue;
+            return passed;
+        } else if (depthTestMode == -1) {
+            let passed = newValue > oldValue;
+            this.data[x] = passed ? newValue : oldValue;
+            return passed;
         }
 
         return false;
@@ -318,24 +325,30 @@ class RenderingPipeline {
         //              You can assume that all primitives are defined consistently, following a
         //              convention similar to the CCW convention for triangles in 3D.
         let aPrime = [a[0] / a[2], a[1] / a[2]];
-                let bPrime = [b[0] / b[2], b[1] / b[2]];
-                let primitiveNormal = [-(aPrime[1] - bPrime[1]), aPrime[0] - bPrime[0]];
-                vec2.normalize(primitiveNormal, primitiveNormal);
+        let bPrime = [b[0] / b[2], b[1] / b[2]];
+        let primitiveNormal1 = [-(aPrime[1] - bPrime[1]), (aPrime[0] - bPrime[0])];
+        let primitiveNormal2 = [(aPrime[1] - bPrime[1]), -(aPrime[0] - bPrime[0])];
+        vec2.normalize(primitiveNormal1, primitiveNormal1);
+        vec2.normalize(primitiveNormal2, primitiveNormal2);
+
+        let cameraMatrixInverse = this.uniforms.cameraMatrix;
+        mat3.invert(cameraMatrixInverse, cameraMatrixInverse);
+        let viewDirection = [cameraMatrixInverse[1], -cameraMatrixInverse[0]];
+        vec2.normalize(viewDirection, viewDirection);
         
+        let lookingRight = viewDirection[1] >= 0;
+        let cullingScalar = lookingRight ? vec2.dot(viewDirection, primitiveNormal1) : vec2.dot(viewDirection, primitiveNormal2);
+
         switch (this.culling) {
             case 0:
                 return false;
             case 1:
-                
-
-                break;
+                return cullingScalar > 0;
             case -1:
-                break;
+                return cullingScalar <= 0;
             default:
                 return false;
         }
-
-        return false;
     }
 
     /**
