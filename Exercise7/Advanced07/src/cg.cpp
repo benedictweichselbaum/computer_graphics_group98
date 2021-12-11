@@ -296,21 +296,21 @@ void CG::decoupledMainLoop()
         // TODO 7.5 a)
         // 1. Given updateRate and frameRate, compute the time between two updates and frames in ticks.
         // Note: You can convert 'ticks' into seconds by dividing with SDL_GetPerformanceFrequency().
-        Uint64 ticksPerUpdate = 0;
-        Uint64 ticksPerRender = 0;
+        Uint64 ticksPerUpdate = SDL_GetPerformanceFrequency() / updateRate;
+        Uint64 ticksPerRender = SDL_GetPerformanceFrequency() / frameRate;
 
         currentTime = SDL_GetPerformanceCounter();
 
         // You can remove these two lines
         // They are only required in a "bad" main loop with variable timestep
-        double variableDt = double(currentTime - lastTime)/ SDL_GetPerformanceFrequency();
-        lastTime = currentTime;
-
 
         // 2. Only update if "nextUpdate" is in the past.
         // - After updating increase "nextUpdate" by the time between two updates.
         // - Use the correct (fixed) dt.
-        update(variableDt);
+        if (nextUpdate < currentTime) {
+            update(1 / updateRate);
+            nextUpdate += ticksPerUpdate;
+        }
 
 
         // 3. Similar to (2.) render only if "nextRender" is in the past.
@@ -323,17 +323,22 @@ void CG::decoupledMainLoop()
         // TODO 7.5 b)
         // Compute the correct interpolation weight "alpha".
         // The weight is the linear interpolation between the last and next update at the current point of time.
-        double alpha = 1;
+        double alpha = (nextUpdate - currentTime) / ticksPerUpdate;
         
 		// Everything below counts towards "render".
-		if(interpolationMethod == 0) // No interpolation
-            alpha = 1;
-        else if(interpolationMethod == 1) // Default interpolation: Use your weight
-            alpha = alpha;
-        else if(interpolationMethod == 2) // Extrapolation: Predict position one timestep in the future
-            alpha += 1;
-        interpolate(variableDt,alpha); // Change this line in order to use the correct dt.
-        render();
+
+        if (nextRender < currentTime) {
+            if(interpolationMethod == 0) // No interpolation
+                alpha = 1;
+            else if(interpolationMethod == 1) // Default interpolation: Use your weight
+                alpha = alpha;
+            else if(interpolationMethod == 2) // Extrapolation: Predict position one timestep in the future
+                alpha += 1;
+            interpolate(1 / frameRate,alpha); // Change this line in order to use the correct dt.
+            render();
+            nextRender += ticksPerRender;
+        }
+        
         imgui.beginFrame();
         renderGui();
         imgui.endFrame();
@@ -347,10 +352,12 @@ void CG::decoupledMainLoop()
         // - Check if the next event is in the future and if yes wait the appropriate time.
 
 
-        Uint64 waitTime = 0; // wait time in ticks (compute this)
+        Uint64 waitTime = ticksPerRender - (nextRender - currentTime); // wait time in ticks (compute this)
          // Code for sleeping:
-        double w = double(waitTime) / SDL_GetPerformanceFrequency();
-        std::this_thread::sleep_for( std::chrono::duration<double, std::ratio<1,1>>(w) );
+        if (waitTime < 0) {
+            double w = double(waitTime) / SDL_GetPerformanceFrequency();
+            std::this_thread::sleep_for( std::chrono::duration<double, std::ratio<1,1>>(w) );
+        }
     }
 
 }
