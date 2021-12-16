@@ -23,7 +23,7 @@ public class SpwanCoins : MonoBehaviour
 
     void NewCoin()
     {
-        Vector3 posVec = new Vector3(Random.Range(-4.0f, 4.0f), 0.0f, Random.Range(0.0f, 3.0f));
+        Vector3 posVec = new Vector3(Random.Range(-4.0f, 4.0f), Random.Range(0.0f, 3.0f), Random.Range(-4.0f, 4.0f));
         Instantiate(preFabCoin, posVec, Quaternion.Euler(90, 0, 0));
         if (ball.transform.localScale.x > 0.5) ball.transform.localScale *= 0.99f;
     }
