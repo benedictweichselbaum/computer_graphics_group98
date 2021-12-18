@@ -48,10 +48,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/cmake/992/bin/cmake
+CMAKE_COMMAND = /snap/cmake/1000/bin/cmake
 
 # The command to remove a file.
-RM = /snap/cmake/992/bin/cmake -E rm -f
+RM = /snap/cmake/1000/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
@@ -78,7 +78,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/snap/cmake/992/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/snap/cmake/1000/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -194,6 +194,19 @@ Advanced07/fast:
 	$(MAKE) $(MAKESILENT) -f src/Advanced07/CMakeFiles/Advanced07.dir/build.make src/Advanced07/CMakeFiles/Advanced07.dir/build
 .PHONY : Advanced07/fast
 
+#=============================================================================
+# Target rules for targets named Advanced09
+
+# Build rule for target.
+Advanced09: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Advanced09
+.PHONY : Advanced09
+
+# fast build rule for target.
+Advanced09/fast:
+	$(MAKE) $(MAKESILENT) -f src/Advanced09/CMakeFiles/Advanced09.dir/build.make src/Advanced09/CMakeFiles/Advanced09.dir/build
+.PHONY : Advanced09/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -207,6 +220,7 @@ help:
 	@echo "... Advanced05"
 	@echo "... Advanced06"
 	@echo "... Advanced07"
+	@echo "... Advanced09"
 	@echo "... CG_Framework"
 .PHONY : help
 
