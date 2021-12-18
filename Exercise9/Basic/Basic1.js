@@ -161,9 +161,18 @@ class Ray {
                     // TODO: Reflect the ray perfectly!
                     // ...
                     // return new Ray(intersection.point, reflectedDir, this.generation + 1);
+                    let reflectedDir = vec2.fromValues(0, 0);
+                    let l = vec2.fromValues(0, 0);
+                    vec2.normalize(l, vec2.fromValues(-this.dir[0], -this.dir[1]));
+                    
+                    vec2.scale(reflectedDir, intersection.normal, 2 * vec2.dot(intersection.normal, l));
+                    vec2.sub(reflectedDir, reflectedDir, l);
+                    vec2.normalize(reflectedDir, reflectedDir);
 
+                    console.log(reflectedDir)
+
+                    return new Ray(intersection.point, reflectedDir, this.generation + 1);
                 }
-                break;
             case MaterialType.perfectDiffuse:
                 {
                     // TODO: Reflect the ray to a random direction in the hemisphere around the intersection normal!
@@ -174,9 +183,16 @@ class Ray {
                     // ...
                     // return new Ray(intersection.point, reflectedDir, this.generation + 1);
 
+                    let rotationAngle = Math.PI * Math.random() - (Math.PI / 2);
+                    let rotationMatrix = mat2.create();
+                    mat2.fromRotation(rotationMatrix, rotationAngle);
+                    let diffuseNormal = vec2.create();
+                    vec2.copy(diffuseNormal, intersection.normal);
+                    vec2.transformMat2(diffuseNormal, diffuseNormal, rotationMatrix);
+                    vec2.normalize(diffuseNormal, diffuseNormal);
 
+                    return new Ray(intersection.point, diffuseNormal, this.generation + 1);
                 }
-                break;
         }
 
 
@@ -273,7 +289,32 @@ class Line {
             //              Only handle the case where you have a single intersection or no intersection (ray is not parallel to line).
             //              Also be sure to check whether the distance of the intersection lies between t_min and t_max.
 
+            let denominatorT = vec2.fromValues(0, 0);
+            vec2.sub(denominatorT, this.p0, ray.p0);
+            denominatorT = vec2.cross(vec3.fromValues(0, 0, 0), denominatorT, lineDir)[2];
 
+            let dividerT = vec2.cross(vec3.fromValues(0, 0, 0), ray.dir, lineDir)[2];
+            let t = denominatorT / dividerT;
+
+            if (t < ray.t_min || t > ray.t_max) return result;
+
+
+            let denominatorU = vec2.fromValues(0, 0);
+            vec2.sub(denominatorU, ray.p0, this.p0);
+            denominatorU = vec2.cross(vec3.fromValues(0, 0, 0), denominatorU, ray.dir)[2];
+
+            let dividerU = vec2.cross(vec3.fromValues(0, 0, 0), lineDir, ray.dir)[2];
+
+            let u = denominatorU / dividerU;
+
+            if (u < 0 || u > 1) return result;
+
+            let intersectionPoint = vec2.fromValues(ray.p0[0], ray.p0[1]);
+            let addVec = vec2.fromValues(0, 0);
+            vec2.scale(addVec, ray.dir, t);
+            vec2.add(intersectionPoint, intersectionPoint, addVec);
+
+            result = new Intersection(t, this.material, this.normal(), intersectionPoint);
 
         }
 
@@ -739,6 +780,9 @@ function Basic1(canvas) {
             let ray;
             // TODO 9.1a)   Set up primary ray based on the camera origin (eye) and the current pixel position (pixelPos).
             //              ray = new Ray(p0, dir);
+            let d = vec2.fromValues(pixelPos[0] - eye[0], pixelPos[1] - eye[1]);
+            vec2.normalize(d, d);
+            ray = new Ray(eye, d);
 
 
             let pixelColor;
@@ -746,7 +790,7 @@ function Basic1(canvas) {
             //              Use the global variable maxRecursionDepth and a initial weight of 1.0.
             //              pixelColor = traceRay(...);
 
-
+            pixelColor = traceRay(ray, 0, 1.0);
 
             if (pixelColor) pixelColors.push(pixelColor);
             else pixelColors.push(backgroundColor);
