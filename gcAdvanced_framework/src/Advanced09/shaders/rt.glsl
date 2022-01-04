@@ -72,17 +72,31 @@ int intersectRayScene(Ray ray, out IntersectionResult result)
         tmp = intersectRaySphere(ray, objectData[i]);
         // TODO:
         // Keep track of the closest intersection
+        if (tmp.tHit < tMin && tmp.isIntersection) {
+            objectId = i;
+            tMin = tmp.tHit;
+            result = tmp;
+        }
     }
 
     tmp = intersectRayPlane(ray, objectData[PLANE]);
     // TODO:
     // Keep track of the closest intersection
+    if (tmp.tHit < tMin && tmp.isIntersection) {
+        objectId = PLANE;
+        tMin = tmp.tHit;
+        result = tmp;
+    }
 
 
     tmp = intersectRaySpikeball(ray,objectData[SPIKEBALL]);
     // TODO:
     // Keep track of the closest intersection
-
+    if (tmp.tHit < tMin && tmp.isIntersection) {
+        objectId = SPIKEBALL;
+        tMin = tmp.tHit;
+        result = tmp;
+    }
 
     //return object id of closest intersection (object ids defined at the beginning of the fragment shader)
     return objectId;
@@ -119,13 +133,28 @@ vec3 trace(Ray ray)
 	// The shininess exponent should be 40.
 	// Take the variable "sunIntensity" into account.
 	// Replace the following dummy line.
-	color = m.color;
+    vec3 color_ambient = m.color * 0.1 * sunIntensity;
+    vec3 color_diffuse = m.color * 1.0 * vec3(sunIntensity, sunIntensity, sunIntensity) * dot(inter.normal, normalize(-lightDir));
+    vec3 r = 2.0 * dot(inter.normal, normalize(-lightDir)) * inter.normal - normalize(-lightDir);
+
+    vec3 color_specular = vec3(1) * 0.7 * pow(min(1.0, max(0, dot(normalize(-ray.direction), normalize(r)))), 40.0);
+
+	
+    
 
     // TODO 9.2 f)
     // Compute shadowing coefficient of the current point.
     // Shoot a ray from the hitpoint towards the sun.
     // Use the uniform shadowFactor.
+    Ray shadowRay = Ray(inter.hitPosition + (inter.epsilon * inter.normal), -lightDir);
+    IntersectionResult interShadow;
+    int shadowIntersect = intersectRayScene(shadowRay, interShadow);
 
+    if (shadowIntersect == -1) {
+        color = color_ambient + color_diffuse + color_specular;
+    } else {
+        color = (1 - shadowFactor) * color_ambient + (1 - shadowFactor) * (color_diffuse + color_specular);
+    }
     return color;
 }
 
@@ -137,6 +166,12 @@ void main() {
 	// Have a look at the definition of struct "Ray" in rt.h.
 	// Use "position" which is passed from the vertex shader.
     Ray primaryRay;
+
+    vec4 worldPos = inverse(projView) * vec4(position, 1);
+    vec3 direction = normalize((1 / worldPos.w) * worldPos.xyz - cameraPos);
+
+    primaryRay.origin = worldPos.xyz;
+    primaryRay.direction = direction;
     // Trace Primary Ray
     out_color = vec4(trace(primaryRay),1);
     return;
