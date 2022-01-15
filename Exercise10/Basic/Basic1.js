@@ -196,13 +196,47 @@ class Object2D {
 
         // 1. Compute the axis-aligned bounding box!
         //    Replace the following dummy line.
-        this.aabb = []; // should be in this format: [[min_x, min_y],[max_x, max_y]]
+        let min_x, min_y, max_x, max_y;
+
+        for (let primitive of primitives) {
+            if (primitive.p0[0] < min_x || !min_x) {
+                min_x = primitive.p0[0];
+            }
+            if (primitive.p1[0] < min_x || !min_x) {
+                min_x = primitive.p1[0];
+            }
+            if (primitive.p0[0] > max_x || !max_x) {
+                max_x = primitive.p0[0];
+            }
+            if (primitive.p1[0] > max_x || !max_x) {
+                max_x = primitive.p1[0];
+            }
+
+            if (primitive.p0[1] < min_y || !min_y) {
+                min_y = primitive.p0[1];
+            }
+            if (primitive.p1[1] < min_y || !min_y) {
+                min_y = primitive.p1[1];
+            }
+            if (primitive.p0[1] > max_y || !max_y) {
+                max_y = primitive.p0[1];
+            }
+            if (primitive.p1[1] > max_y || !max_y) {
+                max_y = primitive.p1[1];
+            }
+        }
+        this.aabb = [[min_x, min_y], [max_x, max_y]]; // should be in this format: [[min_x, min_y],[max_x, max_y]]
 
 
         // 2. Compute the primitives to graphically represent the
         //    bounding box as "Line"s. Use the given color.
         let color = [0.1, 0.1, 0.1];
-        this.aabb_primitives = [];
+        this.aabb_primitives = [
+            new Line([min_x, max_y], [max_x, max_y], color),
+            new Line([min_x, min_y], [max_x, min_y], color),
+            new Line([max_x, min_y], [max_x, max_y], color),
+            new Line([min_x, min_y], [min_x, max_y], color)
+        ];
 
     }
 
@@ -402,12 +436,13 @@ class KDTree {
 
         // As long as the stack is not empty, this loop pops nodes 
         // from the stack.
+        let i = 20;
         while (stack.length != 0) {
             let node = stack.pop();
 
             // TODO 10.1 b)     Build the kd-tree structure by
             //                  splitting nodes which contain 
-            //                  too many triangles.
+            //                  too many triangles.          
 
             if (node.children.length > 3) { // The node needs to be split.
 
@@ -420,11 +455,20 @@ class KDTree {
                 //    in order to get a sorted copy of the objects in the node.
                 //    Use the objects' bounding boxes to choose the right split 
                 //    position!
+                let splitNumber;
+                let sortedObjects;
+                let splitPosition;
                 if (node.splitAxis == 'x') {
-                    // ...
+                    sortedObjects = sort_along_x(node.children);
+                    splitNumber = Math.floor(sortedObjects.length / 2) - 1;
+                    splitPosition = (sortedObjects[splitNumber].aabb[1][0] + sortedObjects[splitNumber + 1].aabb[0][0]) / 2;
                 } else {
-                    // ...
+                    sortedObjects = sort_along_y(node.children);
+                    splitNumber = Math.floor(sortedObjects.length / 2) - 1;
+                    splitPosition = (sortedObjects[splitNumber].aabb[1][1] + sortedObjects[splitNumber + 1].aabb[0][1]) / 2;
                 }
+
+                node.splitPosition = splitPosition;
 
                 // 2. Iterate over the objects in the node and assign them to
                 //    one of the two or even both arrays (via .push()), depending on their
@@ -435,9 +479,19 @@ class KDTree {
                 for (let i = 0; i < node.children.length; i++) {
                     let obj = node.children[i];
                     if (node.splitAxis == 'x') {
-                        // ...
+                        if (obj.aabb[0][0] <= splitPosition) {
+                            objectsLeft.push(obj);
+                        }
+                        if (obj.aabb[1][0] >= splitPosition) {
+                            objectsRight.push(obj);
+                        }
                     } else {
-                        // ...
+                        if (obj.aabb[0][1] <= splitPosition) {
+                            objectsLeft.push(obj);
+                        }
+                        if (obj.aabb[1][1] >= splitPosition) {
+                            objectsRight.push(obj);
+                        }
                     }
                 }
 
@@ -447,13 +501,19 @@ class KDTree {
                 let leftChild;
                 let rightChild;
                 if (node.splitAxis == 'x') {
-                    // ...
+                    leftChild = new KdNode(false, [[node.aabb[0][0], node.aabb[0][1]], [splitPosition, node.aabb[1][1]]], objectsLeft, 'y');
+                    rightChild = new KdNode(false, [[splitPosition, node.aabb[0][1]], [node.aabb[1][0], node.aabb[1][1]]], objectsRight, 'y');
                 } else {
-                    // ...
+                    leftChild = new KdNode(false, [[node.aabb[0][0], node.aabb[0][1]], [node.aabb[1][0], splitPosition]], objectsLeft, 'x');
+                    rightChild = new KdNode(false, [[node.aabb[0][0], splitPosition], [node.aabb[1][0], node.aabb[1][1]]], objectsRight, 'x');
                 }
-                // ...
+                node.children = [leftChild, rightChild];
+                stack.push(leftChild);
+                stack.push(rightChild);
             }
         }
+
+        console.log(this.root);
     }
 
     /**
